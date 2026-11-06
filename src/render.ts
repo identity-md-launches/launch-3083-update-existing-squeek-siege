@@ -228,7 +228,7 @@ export function render(ctx: CanvasRenderingContext2D, g: Game, v: View) {
     drawSprite(ctx, e.kind, color, e.kind === 'jammer' ? 46 : 21 * def.size, ex, ey);
     if (e.slow > 0) {
       ctx.fillStyle = 'rgba(183,156,255,0.8)';
-      ctx.font = '10px "Pixelify Sans", monospace';
+      ctx.font = '10px "Pixelify Sans Variable", monospace';
       ctx.fillText('z', ex + 8, ey - 9 - Math.sin(t * 4) * 2);
     }
     if (e.hp < e.maxHp) {
@@ -282,7 +282,7 @@ export function render(ctx: CanvasRenderingContext2D, g: Game, v: View) {
     } else if (f.kind === 'text') {
       ctx.fillStyle = f.color;
       ctx.globalAlpha = Math.min(1, k * 2);
-      ctx.font = '600 13px "Pixelify Sans", monospace';
+      ctx.font = '600 13px "Pixelify Sans Variable", monospace';
       ctx.textAlign = 'center';
       ctx.fillText(f.text!, toPx(f.x), toPx(f.y));
       ctx.textAlign = 'left';

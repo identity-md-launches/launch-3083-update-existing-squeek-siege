@@ -1,0 +1,26 @@
+{
+ "source": "bug-beetle.png",
+ "cell": 29.25,
+ "w": 11,
+ "h": 10,
+ "palette": {
+  "a": "#48562c",
+  "b": "#fefefe",
+  "c": "#d1ef39",
+  "d": "#010100",
+  "e": "#8f992d",
+  "f": "#2b1504"
+ },
+ "rows": [
+  "...cc.c....",
+  "..aeecec...",
+  ".eeeaaeee..",
+  ".aeceecca..",
+  ".aeefceeaa.",
+  ".fadeee.a..",
+  "..fbda.b.a.",
+  ".afdeedfa..",
+  ".c..f...a..",
+  "........a.."
+ ]
+}

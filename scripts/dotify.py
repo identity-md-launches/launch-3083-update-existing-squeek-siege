@@ -81,7 +81,8 @@ def main():
             keys = q[:, 0] * 256 + q[:, 1] * 16 + q[:, 2]
             mode = np.bincount(keys).argmax()
             grid[j, i] = patch[keys == mode].mean(0)
-            dark[j, i] = grid[j, i].sum() < 70
+            # background candidates: near black, or near white (some generators paint a white floor)
+            dark[j, i] = grid[j, i].sum() < 70 or grid[j, i].min() > 235
     # background = dark cells connected to the outside; dark cells inside (eyes, outlines) stay
     on = np.ones((ny, nx), bool)
     stack = [(j, i) for j in range(ny) for i in range(nx) if (j in (0, ny - 1) or i in (0, nx - 1)) and dark[j, i]]
@@ -93,6 +94,10 @@ def main():
         for dj, di in ((1, 0), (-1, 0), (0, 1), (0, -1)):
             if 0 <= j + dj < ny and 0 <= i + di < nx:
                 stack.append((j + dj, i + di))
+    # trim empty border rows/columns left after removing the background
+    ys, xs = np.nonzero(on)
+    grid, on, dark = grid[ys.min():ys.max() + 1, xs.min():xs.max() + 1], on[ys.min():ys.max() + 1, xs.min():xs.max() + 1], dark[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+    ny, nx = on.shape
     cols = grid[on]
     pal = kmeans(cols, k)
     lab = ((grid[..., None, :] - pal[None, None]) ** 2).sum(-1).argmin(-1)

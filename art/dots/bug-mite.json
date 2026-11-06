@@ -1,0 +1,23 @@
+{
+ "source": "bug-mite.png",
+ "cell": 28.75,
+ "w": 10,
+ "h": 7,
+ "palette": {
+  "a": "#ca511e",
+  "b": "#fefefe",
+  "c": "#000000",
+  "d": "#541b06",
+  "e": "#a53319",
+  "f": "#511a06"
+ },
+ "rows": [
+  "...aff....",
+  "..aaaaa...",
+  ".fbbabcf..",
+  ".abbabba..",
+  "deaaaaaed.",
+  ".ddeeeed..",
+  ".d.eee.f.."
+ ]
+}

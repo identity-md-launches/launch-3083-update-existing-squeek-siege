@@ -1,3 +1,6 @@
+// fonts ship with the site (OFL), so the hosted build has no external dependency.
+// Vendored from @fontsource-variable/doto and @fontsource-variable/pixelify-sans (see src/fonts/).
+import './fonts/fonts.css';
 import './style.css';
 import { loadRounds, loadStatus, txUrl, type Round } from './data';
 import {
@@ -88,6 +91,7 @@ function cellAt(ev: MouseEvent | PointerEvent) {
 canvas.addEventListener('pointermove', (e) => { view.hover = cellAt(e); });
 canvas.addEventListener('pointerleave', () => { view.hover = null; });
 canvas.addEventListener('pointerdown', (e) => {
+  if (e.button !== 0) return;
   const c = cellAt(e);
   if (!c) return;
   view.hover = c;
@@ -122,12 +126,15 @@ let cardWave = -1;
 function buildTimeline() {
   const tl = $('timeline');
   tl.innerHTML = '';
+  tl.style.gridTemplateColumns = `repeat(${game.waves.length}, 1fr)`;
   const maxW = Math.max(...game.waves.map((w) => w.round.work));
   game.waves.forEach((w, i) => {
-    const c = document.createElement('div');
+    const c = document.createElement('button');
+    c.type = 'button';
     c.className = `chip ${w.tag}${w.boss ? ' boss' : ''}`;
     c.innerHTML = `<div class="w"><i style="height:${Math.max(8, (w.round.work / maxW) * 100)}%"></i></div><span>#${w.round.round}</span>`;
     c.title = `Wave ${i + 1}: round #${w.round.round}, ${w.round.work} wheel passages`;
+    c.setAttribute('aria-label', c.title);
     c.onclick = () => showCard(i, true);
     tl.append(c);
   });
@@ -202,11 +209,23 @@ async function pollLive() {
 
 // ---------- overlay ----------
 const overlay = $('overlay');
+// the overlay is a modal dialog: the page behind it is inert until it closes, focus moves in and comes back
+const behind = [document.querySelector('.top'), document.querySelector('.layout'), document.querySelector('.foot')] as HTMLElement[];
+function showOverlay() {
+  overlay.classList.add('show');
+  for (const el of behind) el.inert = true;
+  overlay.querySelector<HTMLElement>('button, a[href]')?.focus({ preventScroll: true });
+}
+function hideOverlay() {
+  overlay.classList.remove('show');
+  for (const el of behind) el.inert = false;
+  $('next').focus({ preventScroll: true });
+}
 function bestKey() { return `squeek-siege:best:${game.seedLabel}`; }
 function intro() {
   const n = today();
   overlay.innerHTML = `<div class="card">
-    <h2>SQUEEK SIEGE</h2>
+    <h2 id="dlgTitle">SQUEEK SIEGE</h2>
     <p class="sub">Daily siege #${n} · ${game.waves.length} waves from rounds #${game.waves[0].round.round}–#${game.waves[game.waves.length - 1].round.round}</p>
     <ol>
       <li>Rust mites want to jam <b>Squeektoshi's wheel</b>. Build towers beside the path with <b>seeds</b>.</li>
@@ -219,21 +238,24 @@ function intro() {
     </div>
     <div class="src">${allRounds.length} real rounds loaded (${source}). Keys: 1–4 towers · space wave · T treat · F speed · U upgrade · right-click cancel</div>
   </div>`;
-  overlay.classList.add('show');
+  showOverlay();
   $('playDaily').onclick = () => start('daily');
   $('playFree').onclick = () => start('free');
 }
 function outro() {
   const won = game.phase === 'won';
-  const best = Math.max(game.score, Number(localStorage.getItem(bestKey()) || 0));
-  localStorage.setItem(bestKey(), String(best));
+  let best = game.score;
+  try {
+    best = Math.max(game.score, Number(localStorage.getItem(bestKey()) || 0));
+    localStorage.setItem(bestKey(), String(best));
+  } catch { /* storage disabled or full: still show the results */ }
   const label = mode === 'daily' ? `Daily siege #${today()}` : 'Random siege';
   const text = won
     ? `I held Squeektoshi's wheel through all ${game.waves.length} waves of ${label} in Squeek Siege. Score ${game.score}, wheel ${game.lives}/${game.maxLives}.`
     : `The bugs jammed Squeektoshi's wheel on wave ${game.waveIndex + 1}/${game.waves.length} of ${label} in Squeek Siege. Score ${game.score}.`;
-  const share = `https://x.com/intent/post?text=${encodeURIComponent(text + ' Every wave is a real round the hamster ran on @squeekchain.')}&url=${encodeURIComponent(location.origin)}`;
+  const share = `https://x.com/intent/post?text=${encodeURIComponent(text + ' Every wave is a real round the hamster ran on @squeekchain.')}&url=${encodeURIComponent(location.origin + location.pathname)}`;
   overlay.innerHTML = `<div class="card">
-    <h2>${won ? 'WHEEL HELD' : 'WHEEL JAMMED'}</h2>
+    <h2 id="dlgTitle">${won ? 'WHEEL HELD' : 'WHEEL JAMMED'}</h2>
     <p class="sub">${label} · wave ${Math.min(game.waveIndex + 1, game.waves.length)}/${game.waves.length} · ${game.kills} bugs squashed · ${Math.round(game.stats.powerMade)} wheel power made</p>
     <div class="score-big">${game.score}</div>
     <p class="sub">best on this siege: ${best}</p>
@@ -243,7 +265,7 @@ function outro() {
       <button id="other">${mode === 'daily' ? 'RANDOM ROUNDS' : 'DAILY SIEGE'}</button>
     </div>
   </div>`;
-  overlay.classList.add('show');
+  showOverlay();
   $('again').onclick = () => start(mode);
   $('other').onclick = () => start(mode === 'daily' ? 'free' : 'daily');
 }
@@ -251,7 +273,11 @@ function outro() {
 function setup(m: 'daily' | 'free') {
   mode = m;
   const label = m === 'daily' ? `daily-${today()}` : `free-${Math.floor(Math.random() * 1e9)}`;
-  const rounds = pickWindow(allRounds, hashStr(label), WAVES_PER_SIEGE);
+  // a daily siege only sees rounds settled before today's UTC midnight, so everyone plays the same one all day
+  const dayStart = Math.floor(Date.now() / 86_400_000) * 86_400_000;
+  const settled = allRounds.filter((r) => Date.parse(r.at) < dayStart);
+  const pool = m === 'daily' && settled.length >= 10 ? settled : allRounds;
+  const rounds = pickWindow(pool, hashStr(label), Math.min(WAVES_PER_SIEGE, pool.length));
   game = newGame(rounds, label);
   view.selected = null;
   choose(null);
@@ -262,7 +288,7 @@ function setup(m: 'daily' | 'free') {
 }
 function start(m: 'daily' | 'free') {
   setup(m);
-  overlay.classList.remove('show');
+  hideOverlay();
   paused = false;
   syncPause();
   pollLive();
@@ -293,8 +319,8 @@ function frame(now: number) {
 if (import.meta.env.DEV) (window as unknown as Record<string, unknown>).__siege = { get game() { return game; }, build, canBuild };
 
 (async () => {
-  overlay.innerHTML = `<div class="card"><h2>SQUEEK SIEGE</h2><p class="sub">Reading Squeektoshi's rounds from Squeekchain…</p></div>`;
-  overlay.classList.add('show');
+  overlay.innerHTML = `<div class="card"><h2 id="dlgTitle">SQUEEK SIEGE</h2><p class="sub" role="status">Reading Squeektoshi's rounds from Squeekchain…</p></div>`;
+  showOverlay();
   const r = await loadRounds();
   allRounds = r.rounds;
   source = r.source;

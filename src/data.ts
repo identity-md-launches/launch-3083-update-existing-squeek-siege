@@ -55,7 +55,7 @@ export async function loadRounds(): Promise<{ rounds: Round[]; source: 'live' | 
     }
     if (out.length < 5) throw new Error('too few rounds');
     out.sort((a, b) => a.round - b.round);
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), rounds: out }));
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), rounds: out })); } catch { /* storage disabled or full: keep the live rounds */ }
     return { rounds: out, source: 'live' };
   } catch (err) {
     console.warn('[squeek-siege] live rounds unavailable, using snapshot', err);
@@ -66,8 +66,10 @@ export async function loadRounds(): Promise<{ rounds: Round[]; source: 'live' | 
 export async function loadStatus(): Promise<LiveStatus> {
   try {
     const res = await fetch(`${API}/status`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`status ${res.status}`);
     const d = await res.json();
-    const m = d.measurement || {};
+    if (!d.measurement) throw new Error('no measurement');
+    const m = d.measurement;
     const fresh = m.freshness === 'online' || m.freshness === 'fresh';
     const rpm = Number(m.rpmMilli || 0) / 1000;
     return {

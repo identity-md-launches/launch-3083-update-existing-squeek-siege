@@ -6,13 +6,14 @@
     <title>Squeek Siege · tower defense powered by a real hamster</title>
     <meta name="description" content="Defend Squeektoshi's wheel. Every wave is a real round the hamster ran on Squeekchain, and your towers run on his real wheel power." />
     <meta property="og:title" content="Squeek Siege" />
+    <meta property="og:image" content="./og.png" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#08080b" />
     <meta property="og:description" content="Tower defense where every wave is a real Squeekchain round and your towers run on a real hamster's wheel." />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='6' fill='none' stroke='%23f5c451' stroke-width='2' stroke-dasharray='2 2'/></svg>" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Doto:wght,ROND@700..900,0..100&family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <script type="module" crossorigin src="./assets/index-C8rzq6X2.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-lKmqMIXy.css">
+    <script type="module" crossorigin src="./assets/index-D_wALbnR.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-Cu8X0WnE.css">
   </head>
   <body>
     <header class="top">
@@ -20,7 +21,7 @@
         <h1>SQUEEK SIEGE</h1>
         <p>Defend Squeektoshi's wheel. Every wave is a round he really ran.</p>
       </div>
-      <div class="live" id="live"><span class="dot"></span><span id="liveText">checking the wheel…</span></div>
+      <div class="live" id="live"><span class="dot" aria-hidden="true"></span><span id="liveText" role="status">checking the wheel…</span></div>
     </header>
 
     <main class="layout">
@@ -32,11 +33,11 @@
           <div class="stat"><label>WAVE</label><b id="wave">1/15</b></div>
           <div class="stat"><label>SCORE</label><b id="score">0</b></div>
           <div class="ctl">
-            <button id="speed" title="Speed (F)">1×</button>
-            <button id="pause" title="Pause (P)">❚❚</button>
+            <button id="speed" title="Speed (F)" aria-label="Game speed">1×</button>
+            <button id="pause" title="Pause (P)" aria-label="Pause or resume">❚❚</button>
           </div>
         </div>
-        <div class="canvas-wrap"><canvas id="game"></canvas></div>
+        <div class="canvas-wrap"><canvas id="game" role="img" aria-label="Siege map: the bug path, your towers and Squeektoshi's wheel. Click or tap a free cell to build the selected tower."></canvas></div>
         <div class="timeline" id="timeline"></div>
       </section>
 
@@ -67,6 +68,6 @@
       <span>a fan game for <a href="https://squeekchain.com/genesis" target="_blank" rel="noopener">Squeekchain</a> · <a href="https://github.com/0xGr1mm/squeek-siege" target="_blank" rel="noopener">source</a></span>
     </footer>
 
-    <div class="overlay" id="overlay"></div>
+    <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="dlgTitle"></div>
   </body>
 </html>
