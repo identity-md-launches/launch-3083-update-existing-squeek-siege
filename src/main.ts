@@ -111,6 +111,10 @@ canvas.addEventListener('contextmenu', (e) => { e.preventDefault(); choose(null)
 
 window.addEventListener('keydown', (e) => {
   if ($('overlay').classList.contains('show')) return;
+  const t = e.target as HTMLElement | null;
+  if (t && t !== document.body && (t.isContentEditable || t.closest('button, a[href], input, select, textarea, summary, [role="button"]'))) {
+    if (e.code === 'Space') return; // let the focused control activate natively
+  }
   const n = Number(e.key);
   if (n >= 1 && n <= 4) choose(TOWER_ORDER[n - 1]);
   else if (e.code === 'Space') { e.preventDefault(); $('next').click(); }

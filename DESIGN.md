@@ -74,7 +74,7 @@ Upper case is part of the LED brand: the headline, panel headings, HUD labels, b
 - The canvas keeps a 22 × 13 cell board (`COLS`, `ROWS` in `src/game.ts`) at 40 px per cell (`CELL` in `src/render.ts`). It scales to the column width with `width: 100%; height: auto`, and the backing store follows `devicePixelRatio`.
 - The timeline is a grid with one column per wave. It is set at runtime (`tl.style.gridTemplateColumns`, `src/main.ts`) so 14- or 15-wave sieges always fill the row.
 - The HUD wraps: `.hud` is `flex-wrap: wrap`, `.stat.power` grows (`flex: 1; min-width: 180px`), and the speed and pause controls push to the right (`margin-left: auto`).
-- **Under 900 px** (`src/style.css` media query): one column, so the side panels follow the board. The header stacks with the live status under the headline, the headline drops to 44 px, and the round numbers in the timeline chips are hidden (bars only).
+- **Under 900 px** (`src/style.css` media query): one column, so the side panels follow the board. The header stacks with the live status under the headline; the status gets `max-width: 100%` and `white-space: normal`, so the longer running/overdrive message wraps inside the gutters instead of widening the page (its dot is `flex: none` and keeps its size), the headline drops to 44 px, and the round numbers in the timeline chips are hidden (bars only).
 - Checked at 320, 390 and 1440 px wide with no horizontal scroll. At 390, the board's top edge sits at about 238 px after Play, and the Seed Spitter row is still on the first screen.
 
 ## Elevation & depth

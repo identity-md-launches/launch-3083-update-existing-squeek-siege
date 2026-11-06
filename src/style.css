@@ -34,7 +34,7 @@ kbd { font-family: var(--mono); font-size: 10px; letter-spacing: 0; color: var(-
 .brand h1 { font-family: var(--display); font-weight: 900; font-size: 52px; letter-spacing: 0.04em; margin: 0; line-height: 0.9; }
 .brand p { margin: 6px 0 0; color: var(--dim); }
 .live { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--panel); padding: 8px 12px; border-radius: 6px; color: var(--dim); white-space: nowrap; }
-.live .dot { width: 8px; height: 8px; border-radius: 50%; background: #3a3a48; }
+.live .dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: #3a3a48; }
 .live.on { color: var(--power); border-color: #284456; }
 .live.on .dot { background: var(--power); box-shadow: 0 0 10px var(--power); animation: pulse 1s infinite; }
 @keyframes pulse { 50% { opacity: 0.35; } }
@@ -114,6 +114,7 @@ canvas#game { display: block; width: 100%; height: auto; cursor: crosshair; touc
   .layout { grid-template-columns: 1fr; }
   .brand h1 { font-size: 44px; }
   .top { flex-direction: column; align-items: flex-start; }
+  .live { max-width: 100%; white-space: normal; }
   .timeline .chip span { display: none; }
 }
 

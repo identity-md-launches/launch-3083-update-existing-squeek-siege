@@ -20,7 +20,7 @@ The game is read-only: no wallet, no keys, no transactions. If the API can't be 
 ## Play
 
 - `1`–`4` pick a tower, click to build, click a tower to upgrade/sell
-- `Space` start the next wave early (pays a seed bonus)
+- `Space` start the next wave early (pays a seed bonus). When a button or link has focus, Space presses that control instead
 - `T` give a treat: 6 s of zoomies, 2.5× wheel power
 - `F` speed, `P` pause, right-click cancel
 
@@ -77,7 +77,8 @@ Last run on this commit's source and `dist/`:
 | Typecheck | `npx tsc --noEmit` (also the first step of `npm run build`) | exit 0 |
 | Production build | `npm run build` | exit 0. The JS is 36 kB (15.3 kB gzip), CSS 8.9 kB, plus 5 woff2 files (35.6 kB) and og.png |
 | Interaction suite | Playwright on Chromium and WebKit against `dist/` served under `/siege/`, with the API routed to fixtures captured from the live API | 68/68 passed |
-| Design probe | `node .imd/reads/skills/design-critic/scripts/taste.mjs` | 12/16 checks pass. The four remaining are deliberate; see `artifacts/validation.md` |
+| Design probe | `node .imd/reads/skills/design-critic/scripts/taste.mjs` | 12/16 checks pass. The four remaining are deliberate; listed below |
+| Revision regression | Playwright (Chromium) against `dist/`, run against both the previous and the new export | Previous: 320 px with a running-wheel status was 381 px wide (61 px overflow), and Space on a focused timeline chip started wave 1. New: 320 px stays 320 px wide (`#live` is 280 px, ends at x=300), Space on chip 3 shows WAVE 3 and stays in build, and Space with no control focused still starts the wave. WebKit was not available on this machine for the revision |
 
 The interaction suite covered:
 
@@ -86,10 +87,17 @@ The interaction suite covered:
 - The intro dialog, the main action on the first screen at 320, 390 and 1440, and focus moving in and back out.
 - No horizontal scroll.
 - Hotkey tower pick, building on a free cell, right-click cancel spending nothing, the tower panel, timeline chip to wave card, and the settlement link.
-- Space starting a wave.
+- Space starting a wave when no control is focused. When a button or link has focus, Space activates that control instead.
+- The running-wheel status at 320 px: it wraps inside the page gutters with no horizontal scroll.
 - Live status in four states: resting, running (overdrive), HTTP 503 (unavailable), and events 500 (snapshot fallback).
 - The daily siege staying identical at 03:00, 07:36 and 23:00 UTC.
 - With storage disabled: the results screen, the share link keeping `/siege/`, and Play again.
+
+The four design-probe checks that fail are deliberate:
+
+- `layout`: the intro dialog's two buttons sit over the shop at 390. That is the modal itself, not a stray overlay. There is no horizontal scroll at 320, 390 or 1440.
+- `casing` and `eyebrows`: the all-caps HUD labels (SEEDS, WHEEL POWER and so on) are part of the LED game look.
+- `copy-budget`: 51 prose words at 390 (the bar is 60) and 104 at 1440 (the bar is 90), from the intro dialog's rules.
 
 Limitations:
 
